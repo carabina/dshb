@@ -34,6 +34,8 @@ public struct ProcessWidget: Widget {
     
     let titleStats = ["PID", "COMMAND", "PPID", "PGID", "UID", "ARCH", "STATUS"]
     
+    //var p : ProcessTitle
+    
     init(win: Window = Window()) {
         self.win = win
         
@@ -43,13 +45,38 @@ public struct ProcessWidget: Widget {
         title = ProcessTitle(title: titleStats,
                             winCoords: titleCoords,
                             colour: COLOR_PAIR(5))
+        
+        
+//        p = ProcessTitle(title: [""], winCoords: Window(length: Int(COLS),
+//            pos: (x:win.pos.x, y:win.pos.y + 1)), colour:COLOR_PAIR(Int32(4)))
     }
     
-    mutating func draw() { }
+    mutating func draw() {
+        let procList = ProcessAPI.list()
+//        p.title = [String(procList[0].pid), String(procList[0].command), String(procList[0].ppid),
+//                   String(procList[0].pgid), String(procList[0].uid), String(procList[0].arch), String(procList[0].status)]
+        //p.draw()
+        
+        var yShift = 1
+        for proc in procList {
+            if (win.pos.y + yShift) > Int32(COLS) {
+                break
+            }
+            let t = [String(proc.pid), String(proc.command), String(proc.ppid),
+                String(proc.pgid), String(proc.uid), String(proc.arch), String(proc.status)]
+            var p2 = ProcessTitle(title: t, winCoords: Window(length: Int(COLS),
+                pos: (x:win.pos.x, y:win.pos.y + yShift)), colour: COLOR_PAIR(Int32(4)))
+            
+            p2.draw()
+            yShift++
+        }
+    }
     
     mutating func resize(newCoords: Window) -> Int32 {
         win = newCoords
         title.resize(win)
+        
+        //p.resize(Window(length: win.length, pos: (x: win.pos.x, y: win.pos.y + 1)))
 
         return win.pos.y + 1 // Becuase of title
     }

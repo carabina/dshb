@@ -31,4 +31,21 @@
 
 #import <ncurses.h>
 
+// Via SystemKit
+
+#include <stdio.h>
+#include <sys/sysctl.h>
+
+// Temp simplified struct with only the things we need for now
+typedef struct {
+    char   p_stat;                    // S* process status
+    char   p_comm[MAXCOMLEN + 1];
+    pid_t  e_ppid;                    // Parent process id
+    // TODO: Why does kinfo_proc have this as pid_t? top works with it as gid_t
+    gid_t  e_pgid;                    // Process group id
+    uid_t  uid;                       // User ID
+} kinfo_proc_systemkit;
+
+int kinfo_for_pid(pid_t pid, kinfo_proc_systemkit *kinfo_sk);
+
 #endif

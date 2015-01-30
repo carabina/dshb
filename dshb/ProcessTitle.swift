@@ -28,7 +28,7 @@ import Darwin
 
 public struct ProcessTitle {
     
-    let title    : [String]
+    var title    : [String]
     let colour   : Int32
     var winCoords: Window
     
@@ -41,16 +41,14 @@ public struct ProcessTitle {
         self.colour    = colour
         self.winCoords = winCoords
         
-        for stat in title {
-            numChar += countElements(stat)
-        }
         computeTitleSpacing()
     }
     
     
-    func draw() {
+    mutating func draw() {
         move(winCoords.pos.y, winCoords.pos.x)
         attrset(colour)
+        computeTitleSpacing()
         
         // TODO: Trailing or overflow space
         var str = String()
@@ -69,6 +67,11 @@ public struct ProcessTitle {
     
     
     private mutating func computeTitleSpacing() {
+        numChar = 0
+        for stat in title {
+            numChar += countElements(stat)
+        }
+        
         titlePadding = String()
         let spaceLength =  Int(floor(Double(Int(winCoords.length) - numChar) / Double(title.count)))
         
