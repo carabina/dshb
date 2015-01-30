@@ -1,5 +1,5 @@
 //
-// ProcessWidget.swift
+// ProcessTitle.swift
 // dshb
 //
 // The MIT License
@@ -24,33 +24,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-import Foundation
+import Darwin
 
-public struct ProcessWidget: Widget {
+public struct ProcessTitle {
     
-    private var meters = [Meter]()
-    var title : ProcessTitle
-    var win   : Window
+    let title    : [String]
+    let colour   : Int32
+    var winCoords: Window
     
-    let titleStats = ["PID", "COMMAND", "PPID", "PGID", "UID", "ARCH", "STATUS"]
+    private var titlePadding = String()
+    var numChar = 0
     
-    init(win: Window = Window()) {
-        self.win = win
+    
+    init(title: [String], winCoords: Window, colour: Int32) {
+        self.title     = title
+        self.colour    = colour
+        self.winCoords = winCoords
         
-        // Title init
-        let titleCoords = Window(length: Int(COLS),
-                                 pos: (x:win.pos.x, y:win.pos.y))
-        title = ProcessTitle(title: titleStats,
-                            winCoords: titleCoords,
-                            colour: COLOR_PAIR(5))
+        for stat in title {
+            numChar += countElements(stat)
+        }
+        computeTitleSpacing()
     }
     
-    mutating func draw() { }
     
-    mutating func resize(newCoords: Window) -> Int32 {
-        win = newCoords
-        title.resize(win)
-
-        return win.pos.y + 1 // Becuase of title
+    func draw() {
+        move(winCoords.pos.y, winCoords.pos.x)
+        attrset(colour)
+        
+        // TODO: Trailing or overflow space
+        var str = String()
+        for stat in title {
+            str += stat + titlePadding
+        }
+        addstr(str)
+    }
+    
+    
+    mutating func resize(winCoords: Window) {
+        self.winCoords = winCoords
+        computeTitleSpacing()
+        draw()
+    }
+    
+    
+    private mutating func computeTitleSpacing() {
+        titlePadding = String()
+        let spaceLength =  Int(floor(Double(Int(winCoords.length) - numChar) / Double(title.count)))
+        
+        for var i = 0; i < spaceLength; ++i {
+            titlePadding.append(UnicodeScalar(" "))
+        }
     }
 }
