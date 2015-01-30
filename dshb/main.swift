@@ -164,6 +164,8 @@ if (smc.open() == kIOReturnSuccess) {
     widgets.append(FanWidget())
 }
 
+widgets.append(ProcessWidget())
+
 func draw_all() {
     let widgetLength = computeWidgetLength()
     
@@ -173,13 +175,22 @@ func draw_all() {
     var x_multi: Int32 = 0
     for var i = 0; i < widgets.count; ++i {
         if (i % 3 == 0) {
-            y_pos_new += result_max
+            y_pos_new = result_max
             x_multi = 0
         }
         
-        result_pos = widgets[i].resize(Window(length: widgetLength,
-                                              pos: (x: (widgetLength + gap) * x_multi,
-                                                    y: y_pos_new)))
+        if i == widgets.count - 1 {
+            result_pos = widgets[i].resize(Window(length: Int(COLS),
+                pos: (x: (widgetLength + gap) * x_multi,
+                    y: y_pos_new)))
+        }
+        else {
+            result_pos = widgets[i].resize(Window(length: widgetLength,
+                pos: (x: (widgetLength + gap) * x_multi,
+                    y: y_pos_new)))
+        }
+        
+        
         
         if (result_pos > result_max) {
             result_max = result_pos
